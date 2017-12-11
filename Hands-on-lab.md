@@ -1,5 +1,11 @@
 # Hands-on : Kubernetes
 
+### Prerequisites
+- Virtualbox
+- minikube
+- kubectl
+
+
 ### Kubernetes 101 (in 3min)
 - Node : Master Node / Worker Node
 - Pod :
@@ -11,13 +17,16 @@
 참고 URL : [https://github.com/kubernetes/minikube]()
 
 각 OS에 맞게 설치하면 됩니다.
-##### Windows
+##### Windows 사용자
+Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe) file, rename it to minikube.exe and add it to your path.
 
+##### Mac OS 사용자
 ```
+brew cask install minikube
 ```
-##### Mac OS
+##### Linux 사용자
 ```
-brew install minikube
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 ```
 
 ### Helm
