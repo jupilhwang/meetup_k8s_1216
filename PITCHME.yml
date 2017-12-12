@@ -1,2 +1,9 @@
-footnote: ""
+footnote: "Oracle Monthly Meetup : 2017.12.16"
 theme : moon
+vertical-center : false
+#theme-override : assets/css/PITCHME.css
+#background : assets/images/wallpaper.jpg
+#logo : assets/images/logo.png
+#transition : none
+published : false
+transition : fade
