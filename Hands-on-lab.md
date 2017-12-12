@@ -17,30 +17,31 @@
   ##### Windows 사용자
   Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe) file, rename it to minikube.exe and add it to your path.
 
-//chocolatey (Package Manager for Windows)를 사용하면 편리하게 설치할 수 있다.
-###### chocolatey 설치
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-```
-###### install kubectl with chocolatey
-```
-choco upgrade chocolatey
-choco version
-choco list kubernetes-cli       //check its version
-choco install kubernetes-cli    
-choco upgrade kubernetes-cli    //in case you want to upgrade
-choco list --localonly 
-```
+  //chocolatey (Package Manager for Windows)를 사용하면 편리하게 설치할 수 있다.
+  ###### chocolatey 설치
+  ```powershell
+  Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+  ```
 
-##### Mac OS 사용자
-```
-brew cask install minikube
-```
-##### Linux 사용자
-```
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
-```
----
+  ###### install kubectl with chocolatey
+    ```
+    choco upgrade chocolatey
+    choco version
+    choco list kubernetes-cli       //check its version
+    choco install kubernetes-cli    
+    choco upgrade kubernetes-cli    //in case you want to upgrade
+    choco list --localonly 
+    ```
+
+  ##### Mac OS 사용자
+    ```
+    brew cask install minikube
+    ```
+  ##### Linux 사용자
+  ```
+  curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+  ```
+
 ### Kubernetes 101 (in 3min)
 - Node : Master Node / Worker Node
 - Pod :
@@ -48,7 +49,7 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/miniku
 - Deployment :
 - Ingress :
 
----
+
 ### Helm
 Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되어 있다. Client tool인 Helm과 Server tool인 Tiller로 구성된다. Tiller는 kubernetes Cluster안에서 서비스로 동작하며, charts의 관리(설치/제거/관리)를 담당한다. Helm은 Client인 laptop이나 CI/CD에서 동작하는 CLI이다.
 
@@ -112,7 +113,8 @@ Kubernetes에서 Service의 외부접근을 처리한다. (L7처럼 동작)
   - A pair of backends that will receive the request for cheeses.all .One whose path begins with /stilton and another whose path begins with /cheddar
 
 ##### Let's setup the echoserver
-
+<!-- - sldfalsdjf
+- lsadflasdjkf -->
 
 
 ### Kube-lego
