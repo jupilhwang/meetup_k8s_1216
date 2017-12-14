@@ -8,8 +8,9 @@
 - kubectl
 
 **설치가이드**
-- Install Docker & Kubernetes -  https://goo.gl/4PHTJt
+- Install Docker & Kubernetes -  https://goo.gl/4PHTJt by Gyunggyu.kim@oracle.com
 
+<!--
 #### Minikube Installation
 참고 URL : [https://github.com/kubernetes/minikube]()
 각 OS에 맞게 설치하면 됩니다.
@@ -24,23 +25,23 @@
   ```
 
   ###### install kubectl with chocolatey
-    ```
-    choco upgrade chocolatey
-    choco version
-    choco list kubernetes-cli       //check its version
-    choco install kubernetes-cli    
-    choco upgrade kubernetes-cli    //in case you want to upgrade
-    choco list --localonly 
-    ```
+  ```bash
+  choco upgrade chocolatey
+  choco version
+  choco list kubernetes-cli       //check its version
+  choco install kubernetes-cli    
+  choco upgrade kubernetes-cli    //in case you want to upgrade
+  choco list --localonly 
+  ```
 
   ##### Mac OS 사용자
-    ```
-    brew cask install minikube
-    ```
+  ```
+  brew cask install minikube
+  ```
   ##### Linux 사용자
   ```
   curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
-  ```
+-->
 
 ### Kubernetes 101 (in 3min)
 - Node : Master Node / Worker Node
@@ -93,14 +94,19 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
   - 외부 저장소 추가
     ```
     helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+
+    helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
     ```
+
 <!-- 
 ### Kubernetes  Navigator
 - 요청된 호스트에 따라 내부 DNS를 이용하여, Proxy Passing하는 Nginx Service
  -->
 
 ### Minikube Ingress 
-Kubernetes에서 Service의 외부접근을 처리한다. (L7처럼 동작)
+- service를 ClusterIP로 만들었을때, 외부에서 서비스에 접근하고 싶을때는 어떻게 하면 될까요?
+  - kubectl port-forward <서비스> 로컬호스트포트:서비스외부포트
+  - ingress 설정 : Kubernetes에서 Service의 외부접근을 처리한다. (L7처럼 동작)
 - minikube 1.4+ 에서는 addon으로 nginx ingress를 제공한다
   ```
   minikube addons enable ingress
@@ -113,31 +119,77 @@ Kubernetes에서 Service의 외부접근을 처리한다. (L7처럼 동작)
   - A pair of backends that will receive the request for cheeses.all .One whose path begins with /stilton and another whose path begins with /cheddar
 
 ##### Let's setup the echoserver
-<!-- - sldfalsdjf
-- lsadflasdjkf -->
+```
+kubectl run echoserver --image=googlecontainer/echoserver:1.7 --port=8080
+//kubectl expose deployment echoserver --type=NodePort
+kubectl expose deployment echoserver
+```
+minikube에서는 아래와 같은 방법으로도 service를 확인할 수 있다.
+```
+minikube service list
+```
+##### ingress enable
+```
+minikube addon enable ingress
+```
+![](img/ingress-enable-nginx-ingress-controller.png)
 
+##### ingress rule 설정
+[ingress-rule.yml]
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-tutorial
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  backend:
+    serviceName: default-http-backend
+    servicePort: 80
+  rules:
+  - host: myminikube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: echoserver
+          servicePort: 8080
+```
+- ingress rules를 등록한다.
+```bash
+kubectl create -f ingress-rule.yml
 
+# or
+
+kubectl create -f 
+```
+- 등록된 ingress를 확인한다.
+```
+kubectl describe ing ingress-tutorial
+```
+- host 파일에 myminikube.local 를 등록한다
+```
+echo "$(minikube ip) myminikube.local" >> /etc/hosts
+```
+- service에 접속해 본다.
+```
+watch curl -sSL myminikube.local
+```
+<!--
 ### Kube-lego
 Kube-Lego는 Kubernetes Ingress에서 Let's Encrypt인증서를 생성하고 자동으로 갱신해 주는 툴이다. Helm으로 설치가 가능하다
+ACME protocol : Automated Certificate Management Environment protocol
 
-###### setup
-  ```
-  helm init
-  ```
-
-##### install nginx-ingress
-ingress를 설정하기 전에우선 ingress-controller를 설치해야 한다.
-
-  ```
-  helm install --name nginx-ingress stable/nginx-ingress
-  ```
+![Kube-lego Architecture](img/kube-lego-architecture.gif)
+[출처 : https://blog.jetstack.io/blog/kube-lego/]
 
 ##### install kube-lego
 ```
 helm install --name kube-lego --set config.LEGO_EMAIL=jupil.hwang@gmail.com,config.LEGO_URL=https://acme-v01.api.letsencrypt.org/directory stable/kube-lego
 ```
 ![](img/kube-lego-install.png)
-```log
+```yml
 helm install --name kube-lego --set config.LEGO_EMAIL=jupil.hwang@gmail.com,config.LEGO_URL=https://acme-v01.api.letsencrypt.org/directory stable/kube-lego
 NAME:   kube-lego
 LAST DEPLOYED: Sun Dec 10 12:02:15 2017
@@ -185,10 +237,166 @@ spec:
       secretName: example-tls
 ```
 
----
-### Prometheus Installation with Helm
+```yml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-world
+  annotations:
+    # enable kube-lego for this ingress
+    kubernetes.io/tls-acme: "true"
+spec:
+  # this enables tls for the specified domain names
+  tls:
+  - hosts:
+    - demo.kube-lego.jetstack.net
+    secretName: hello-world-tls
+  rules:
+  - host: demo.kube-lego.jetstack.net
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: hello-world
+          servicePort: 80
+```
+-->
+
+
+### Prometheus를 이용한 Kubernetes Monitoring
+#### Prometheus
+Google Borg Monitor에서 영감을 받아서 만들게 된, Monitor/alert을 위한 오픈소스 툴이다. Soundcloud에서 처음에 만들어지다가 현재는 CNCF에서 관리하고 있다. 다양한 Client언어와 Platform을 지원하며, PostgreSQL, MySQL, Etcd 등과 연결할 수 있는 Exporters를 제공한다.
+
+Coreos에서는 K8s환경에서 사용할 수 있는 다양한 Operators를 출시했는데, 그 중에는 오픈소스인 [Prometheus-Operator](http://github.com/coreos/prometheus-operator)도 있다.
+
+**참고** 다양한 Kubernetes Extensions : https://github.com/coreos/awesome-kubernetes-extensions
+![](img/coreos-k8s-extensions.png)
+
+##### How does it works?
+![](img/prometheus-operator-work.png)
+source: [Prometheus-operator](https://coreos.com/blog/the-prometheus-operator.html)
+
+<!--
 ```bash
+# coreos chart repo 추가
 helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 
-helm install coreos/prometheus --name prometheus
+# monitoring namespace 생성
+kubectl create ns monitoring
+
+# Prometheus-operator 설치
+helm install --name monitoring --set rbacEnable=false --namespace=monitoring coreos/prometheus-operator
 ```
+![](img/helm-install-prometheus-operator.png)
+```bash
+# prometheus, alertmanager and grafana 설치
+helm install --name prometheus --set serviceMonitorsSelector.app=prometheus --set ruleSelector.app=prometheus --set rbacEnable=false --namespace=monitoring coreos/prometheus
+
+helm install --name alertmanager --namespace=monitoring --set rbacEnable=false coreos/alertmanager
+
+helm install --name grafana --namespace=monitoring --set rbacEnable=false coreos/grafana
+```
+```bash
+helm install --name kube-prometheus --namespace=monitoring --set rbacEnable=false coreos/kube-prometheus
+```
+![](img/kubectl-get-all-monitoring.png)
+```bash
+# minikube vm의 memory가 부족해서 prometheus가 pending으로 나옴, VM의 memory를 증가하고 다시 시작.
+kubectl get all -n monitoring
+```
+![](img/kubectl-get-all-monitoring2.png)
+```bash
+kubectl port-forward -n monitoring prometheus-prometheus-0 9090
+```
+-->
+<!-- ```bash
+kubectl create -n kube-system tiller
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+helm init --service-account tiller --tiller-namespace kube-system
+```
+**rbac-config.yml** for helm tiller service account for cluster-admin
+```yml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tiller
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: tiller-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: tiller
+    namespace: kube-system
+
+/tmp/values.yml
+```yml
+prometheus:
+  rbacEnable: false
+
+exporter-kube-state:
+  rbacEnable: false
+```
+```bash
+helm install --name kube-prometheus --namespace=monitoring -f /tmp/values.yml coreos/kube-prometheus
+```
+![](img/helm-install-kube-prometheus.png)
+``` -->
+
+# Kubernetes Setup for Prometheus and Grafana
+### Quick start
+
+To quickly start all the things just do this:
+```
+kubectl apply --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests-all.yaml
+```
+This will create the namespace monitoring and bring up all components in there.
+
+To shut down all components again you can just delete that namespace:
+```
+kubectl delete namespace monitoring
+```
+Default Dashboards
+
+If you want to re-import the default dashboards from this setup run this job:
+```
+kubectl apply --filename ./manifests/grafana/grafana-import-dashboards-job.yaml
+```
+In case the job already exists from an earlier run, delete it before:
+```
+kubectl --namespace monitoring delete job grafana-import-dashboards
+```
+More Dashboards
+
+See grafana.net for some example dashboards and plugins.
+
+    Configure Prometheus data source for Grafana.
+    Grafana UI / Data Sources / Add data source
+        Name: prometheus
+        Type: Prometheus
+        Url: http://prometheus:9090
+        Add
+
+    Import Prometheus Stats:
+    Grafana UI / Dashboards / Import
+        Grafana.net Dashboard: https://grafana.net/dashboards/2
+        Load
+        Prometheus: prometheus
+        Save & Open
+
+    Import Kubernetes cluster monitoring:
+    Grafana UI / Dashboards / Import
+        Grafana.net Dashboard: https://grafana.net/dashboards/162
+        Load
+        Prometheus: prometheus
+        Save & Open
+
+Credit
+
+Alertmanager configs and integration in this repository was heavily inspired by the implementation in kayrus/prometheus-kubernetes.
