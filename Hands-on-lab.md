@@ -45,12 +45,13 @@
 
 ### Kubernetes 101 (in 3min)
 - Node : Master Node / Worker Node
+- Cluster
+- Namespace
 - Pod : one or more containers in a pod, share same IP address and resource (mount, host etc..)
 - Service
 - Deployment : replicaset
 - Ingress
 - Labels
-- Namespace
 
 <!--
 **kube-dns DNS Schema 규칙**
@@ -60,61 +61,23 @@ pod의 경우, <팟-IP-Address>.<네임스페이스이름>.pod.cluster.local
 -->
 
 
-### Helm
-Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되어 있다. Client tool인 Helm과 Server tool인 Tiller로 구성된다. Tiller는 kubernetes Cluster안에서 서비스로 동작하며, charts의 관리(설치/제거/관리)를 담당한다. Helm은 Client인 laptop이나 CI/CD에서 동작하는 CLI이다.
-
-- chart : Kubernetes에 탑재되는 Helm Package이다.
-  - 두개 파트로 구성되어 있다. 
-    - chart.yaml : 패키지의 설명
-    - 하나이상의 Kubernetes Tempalte들 (kubernetes manifest files)
-  - [Chart](https://github.com/kubernetes/charts)
-  - [Kubeapps](https://kubeapps.com/)
-
-- 설치
-  - K8s context 확인
-    현재 Kubeconfig의 current-context가 helm을 설치할려고 하는 K8s cluster를 가르키고 있는지 확인한다.
-    ```
-    kubectl config current-context
-    ```
-    cluster가 여러개인 경우 환경변수에 KUBECONFIG을 따로 설정할 수 있다.
-  - tiller 설치
-    ```bash
-    helm init
-    ```
-    ![](img/helm-init.png)
-    ![](img/helm-init-k8s-dashboard.png)
-  - 업그레이드를 원할때는 아래와 같이 하면 된다.
-    ```
-    helm init --upgrade
-    ```
-- Example 설치
-  - nginx 패키지 검색 및 설치
-    ```bash
-    helm search ghost
-    
-    helm install stable/ghost 
-    #or
-    helm install --name ghost --set ghostUsername=admin,ghostPassword=welcome1,mariadbRootPassword=welcoem1 stable/ghost
-    ```
-    ![](img/helm-install-ghost.png)
-  - 외부 저장소 추가
-    ```
-    helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
-
-    helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
-    ```
-
 <!-- 
 ### Kubernetes  Navigator
 - 요청된 호스트에 따라 내부 DNS를 이용하여, Proxy Passing하는 Nginx Service
  -->
 
-### Kubernetes Tutorials
+### Kubernetes Tutorial
 ##### Let's setup the echoserver
 ```bash
 kubectl run echoserver --image=googlecontainer/echoserver:1.7 --port=8080
 #kubectl expose deployment echoserver --type=NodePort
 kubectl expose deployment echoserver
+
+kubectl get pod
+
+kubectl get pod -n kube-system
+# or
+kubectl get pod --namespace=kube-system
 
 # scale up & down
 kubectl scale deployments echoserver --replica=3
@@ -277,8 +240,70 @@ spec:
 ![](img/k8s-dashboard-with-heapster.png)
 
 ## Monitoring
+![](https://datadog-prod.imgix.net/img/blog/how-to-collect-and-graph-kubernetes-metrics/kubernetes-metric-collection.png?auto=format&fit=max&w=847)
+source : https://www.datadoghq.com/blog/how-to-collect-and-graph-kubernetes-metrics/
+
+### Helm
+Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되어 있다. Client tool인 Helm과 Server tool인 Tiller로 구성된다. Tiller는 kubernetes Cluster안에서 서비스로 동작하며, charts의 관리(설치/제거/관리)를 담당한다. Helm은 Client인 laptop이나 CI/CD에서 동작하는 CLI이다.
+
+- chart : Kubernetes에 탑재되는 Helm Package이다.
+  - 두개 파트로 구성되어 있다. 
+    - chart.yaml : 패키지의 설명
+    - 하나이상의 Kubernetes Tempalte들 (kubernetes manifest files)
+  - [Chart](https://github.com/kubernetes/charts)
+  - [Kubeapps](https://kubeapps.com/)
+
+- 설치
+  - K8s context 확인
+    현재 Kubeconfig의 current-context가 helm을 설치할려고 하는 K8s cluster를 가르키고 있는지 확인한다.
+    ```
+    kubectl config current-context
+    ```
+    cluster가 여러개인 경우 환경변수에 KUBECONFIG을 따로 설정할 수 있다.
+  - tiller 설치
+    ```bash
+    helm init
+    ```
+    ![](img/helm-init.png)
+    ![](img/helm-init-k8s-dashboard.png)
+  - 업그레이드를 원할때는 아래와 같이 하면 된다.
+    ```
+    helm init --upgrade
+    ```
+- Example 설치
+  - nginx 패키지 검색 및 설치
+    ```bash
+    helm search ghost
+    
+    helm install stable/ghost 
+    #or
+    helm install --name ghost --set ghostUsername=admin,ghostPassword=welcome1,mariadbRootPassword=welcoem1 stable/ghost
+    ```
+    ![](img/helm-install-ghost.png)
+  - 외부 저장소 추가
+    ```
+    helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+
+    helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+    ```
+### cAdvisor / kubelet
+- kubelet소스 코드안에 cAdvisor api가 들어가 있다. [github source](https://github.com/kubernetes/kubernetes/tree/release-1.7/pkg/kubelet/server/stats)
+
+```bash
+kubectl proxy &
+curl localhost:8001/api/v1/nodes/$(kubectl get nodes -o=jsonpath="{.items[0].metadata.name}")/proxy/stats/
+
+curl localhost:8001/metrics
+```
+
+https://www.outcoldman.com/en/archive/2017/07/09/kubernetes-monitoring-resources/
+
 ### Heapster 를 이용한 Kubernetes Monitoring
 - Container Cluster Monitoring and Performance Analysis
+![](https://d33wubrfki0l68.cloudfront.net/a5c0d5e887a336fb0c686b3a6c436b21d51588a4/8e530/images/docs/monitoring-architecture.png)
+
+![](https://datadog-prod.imgix.net/img/blog/how-to-collect-and-graph-kubernetes-metrics/kubernetes-heapster.png?auto=format&fit=max&w=847)
+
 - influxdb & grafana
   - Heapster collects and interprets various signals like compute resource usage, lifecycle events, etc. Note that the model API, formerly used provide REST access to its collected metrics, is now deprecated. Please see the model documentation for more details.
 - in minikube
@@ -356,7 +381,7 @@ helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 #kubectl create ns monitoring
 
 # Prometheus-operator 설치
-helm install --name prometheus-operator --set rbacEnable=true --namespace=monitoring coreos/prometheus-operator
+helm install --name prometheus-operator --set rbacEnable=enable --namespace=monitoring coreos/prometheus-operator
 
 # pod과 crd(CustomResourceDefinition)을 확인해 보자
 kubectl get pod,crd -n monitoring
@@ -377,6 +402,11 @@ helm install --name kube-prometheus --namespace=monitoring coreos/kube-prometheu
 kubectl get all -n monitoring
 ```
 ![](img/kubectl-get-all-monitoring2.png)
+**exporter-node** 의 경우 /proc Filesystem에 접근을 해야 하기 때문에 
+![](img/exporter-node-securityContext-privillege.png) 
+
+
+
 ```bash
 kubectl port-forward -n monitoring prometheus-prometheus-0 9090
 ```
@@ -385,12 +415,9 @@ kubectl port-forward -n monitoring prometheus-prometheus-0 9090
 #### grafana
 ```bash
 
-
-
 # port-forward
 kubectl port-forward -n monitoring $(kubectl get pods --selector=app=grafana-grafana -n monitoring --output=jsonpath="{.items..metadata.name}")  3000
 ```
-
 
 <!-- ```bash
 kubectl create -n kube-system tiller
@@ -432,55 +459,29 @@ helm install --name kube-prometheus --namespace=monitoring -f /tmp/values.yml co
 ![](img/helm-install-kube-prometheus.png)
 ``` -->
 
-
-# Kubernetes Setup for Prometheus and Grafana
-### Quick start
-
-To quickly start all the things just do this:
-```
-kubectl apply --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests-all.yaml
-```
-This will create the namespace monitoring and bring up all components in there.
-
-To shut down all components again you can just delete that namespace:
-```
-kubectl delete namespace monitoring
-```
-Default Dashboards
-
-If you want to re-import the default dashboards from this setup run this job:
-```
-kubectl apply --filename ./manifests/grafana/grafana-import-dashboards-job.yaml
-```
-In case the job already exists from an earlier run, delete it before:
-```
-kubectl --namespace monitoring delete job grafana-import-dashboards
-```
-More Dashboards
-
-See grafana.net for some example dashboards and plugins.
-
-    Configure Prometheus data source for Grafana.
-    Grafana UI / Data Sources / Add data source
-        Name: prometheus
-        Type: Prometheus
-        Url: http://prometheus:9090
-        Add
-
-    Import Prometheus Stats:
-    Grafana UI / Dashboards / Import
-        Grafana.net Dashboard: https://grafana.net/dashboards/2
-        Load
-        Prometheus: prometheus
-        Save & Open
-
-    Import Kubernetes cluster monitoring:
-    Grafana UI / Dashboards / Import
-        Grafana.net Dashboard: https://grafana.net/dashboards/162
-        Load
-        Prometheus: prometheus
-        Save & Open
-
-Credit
-
-Alertmanager configs and integration in this repository was heavily inspired by the implementation in kayrus/prometheus-kubernetes.
+### Infos
+  Kubernetes: https://kubernetes.io
+  "Prometheus" by Michael Kraus, ADMIN , issue 40, 2017, pg. 20, http://www.admin-magazine.com/Archive/2017/40/Time-series-based-monitoring-with-Prometheus
+  Example from the Kubernetes documentation: https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml
+  More about relabeling: https://www.robustperception.io/life-of-a-label/
+  PromQL: https://prometheus.io/docs/querying/basics/
+  Prometheus 2.0: https://coreos.com/blog/prometheus-2.0-storage-layer-optimization
+  Persistent volumes: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+  Stateful sets: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+  Minikube: https://github.com/kubernetes/minikube
+  Installing Minikube: https://github.com/kubernetes/minikube#installation
+  Listings for the article: ftp://ftp.linux-magazine.com/pub/listings/admin-magazine.com/41/
+  RBAC: https://github.com/prometheus/prometheus/blob/master/documentation/examples/rbac-setup.yml
+  Prometheus Docker image: https://hub.docker.com/r/prom/prometheus/
+  ConfigMap: https://kubernetes.io/docs/tasks/configure-pod-container/configmap/
+  Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+  Node exporter image: https://hub.docker.com/r/prom/node-exporter/
+  DaemonSet: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+  Grafana: https://grafana.com
+  Node exporter dashboard: https://grafana.com/dashboards/22
+  Kubernetes pod dashboard: https://grafana.com/dashboards/737
+  Kubernetes dashboards: https://grafana.com/dashboards?dataSource=prometheus&search=Kubernetes
+  kube-state-metrics: https://github.com/kubernetes/kube-state-metrics
+  kube-state-metrics documentation: https://github.com/kubernetes/kube-state-metrics/tree/master/Documentation
+  Prometheus Operator: https://github.com/coreos/prometheus-operator
+  Prometheus Operator documentation: https://coreos.com/operators/prometheus/docs/latest/
