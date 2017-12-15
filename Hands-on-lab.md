@@ -89,14 +89,11 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
     ```
 - Example 설치
   - nginx 패키지 검색 및 설치
-    ```
+    ```bash
     helm search ghost
-    ```
-    ```
+    
     helm install stable/ghost 
-    ```
-    or
-    ```
+    #or
     helm install --name ghost --set ghostUsername=admin,ghostPassword=welcome1,mariadbRootPassword=welcoem1 stable/ghost
     ```
     ![](img/helm-install-ghost.png)
@@ -112,7 +109,19 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
 - 요청된 호스트에 따라 내부 DNS를 이용하여, Proxy Passing하는 Nginx Service
  -->
 
-### Minikube Ingress 
+### Kubernetes Tutorials
+##### Let's setup the echoserver
+```bash
+kubectl run echoserver --image=googlecontainer/echoserver:1.7 --port=8080
+#kubectl expose deployment echoserver --type=NodePort
+kubectl expose deployment echoserver
+
+# scale up & down
+kubectl scale deployments echoserver --replica=3
+```
+
+
+##### Minikube Ingress 
 - service를 ClusterIP로 만들었을때, 외부에서 서비스에 접근하고 싶을때는 어떻게 하면 될까요?
   - kubectl port-forward <pods이름> 로컬호스트포트:서비스외부포트
   - ingress 설정 : Kubernetes에서 Service의 외부접근을 처리한다. (L7처럼 동작)
@@ -127,12 +136,6 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
   - A backend that will receive requests for myminikube.info and displays some basic information about the cluster and the request.
   - A pair of backends that will receive the request for cheeses.all .One whose path begins with /stilton and another whose path begins with /cheddar
 
-##### Let's setup the echoserver
-```
-kubectl run echoserver --image=googlecontainer/echoserver:1.7 --port=8080
-//kubectl expose deployment echoserver --type=NodePort
-kubectl expose deployment echoserver
-```
 minikube에서는 아래와 같은 방법으로도 service를 확인할 수 있다.
 ```
 minikube service list
@@ -273,9 +276,56 @@ spec:
 
 ![](img/k8s-dashboard-with-heapster.png)
 
+## Monitoring
+### Heapster 를 이용한 Kubernetes Monitoring
+- Container Cluster Monitoring and Performance Analysis
+- influxdb & grafana
+  - Heapster collects and interprets various signals like compute resource usage, lifecycle events, etc. Note that the model API, formerly used provide REST access to its collected metrics, is now deprecated. Please see the model documentation for more details.
+- in minikube
+  ```bash
+  minikube addons enable heapster
+
+  minikube service list
+  ```
+  ![](img/minikube-addons-heapster.png)
+- heapster model metrics
+  ```bash
+  kubectl port-forward -n kube-system $(kubectl get pods --selector=k8s-app=heapster -n kube-system --output=jsonpath="{.items..metadata.name}") 8082
+  ```
+  ![](img/heapster-model-metrics.png)
+<!-- <- browse to http://localhost:8082 -->
+
+- grafana
+```bash
+kubectl port-forward -n kube-system influx-grafana 3000
+```   
+
+
 ### Prometheus를 이용한 Kubernetes Monitoring
 #### Prometheus
-Google Borg Monitor에서 영감을 받아서 만들게 된, Monitor/alert을 위한 오픈소스 툴이다. Soundcloud에서 처음에 만들어지다가 현재는 CNCF에서 관리하고 있다. 다양한 Client언어와 Platform을 지원하며, PostgreSQL, MySQL, Etcd 등과 연결할 수 있는 Exporters를 제공한다.
+Google Borgmon에서 영감을 받아서 만들게 된, Monitor/alert을 위한 오픈소스 툴이다. Soundcloud에서 처음(2012)에 만들어지다가, 2015년 발표, 현재는 CNCF에서 관리하고 있다. 다양한 Client언어와 Platform을 지원하며, PostgreSQL, MySQL, Etcd 등과 연결할 수 있는 Exporters를 제공한다.
+
+- Monitoring system and TSDB
+  - Instrumentation
+  - Metrics collection and storage
+  - Querying, alerting, dashboarding
+
+- collects metrics at scale via HTTP (think:yet another client of your microservice)
+- thousands of targets, millions of time series, 800k samples/s, no dependencies
+- easy to scale
+- powerfull query language (PromQL)
+  - New query language
+  - Greate for time series computations
+  - Not SQL-style, but functional
+  ```javascript
+  // the 3 path-method combinations with the hightest number of failing requests?
+  topk(3, sum by(path, method)) (
+    rate(http_requests_totla{status=~"5.."}[5m])
+  )
+
+  // All partiitions in my entire infra with more than 100GB capacity that are not mounted on root?
+  node_filesystem_bytes_total{mountpoint!="/"}
+  ```
 
 Coreos에서는 K8s환경에서 사용할 수 있는 다양한 Operators를 출시했는데, 그 중에는 오픈소스인 [Prometheus-Operator](http://github.com/coreos/prometheus-operator)도 있다.
 
@@ -306,7 +356,7 @@ helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 #kubectl create ns monitoring
 
 # Prometheus-operator 설치
-helm install --name monitoring --set rbacEnable=enable --namespace=monitoring coreos/prometheus-operator
+helm install --name prometheus-operator --set rbacEnable=true --namespace=monitoring coreos/prometheus-operator
 
 # pod과 crd(CustomResourceDefinition)을 확인해 보자
 kubectl get pod,crd -n monitoring
