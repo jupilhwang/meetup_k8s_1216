@@ -16,3 +16,11 @@ spec:
         backend:
           serviceName: echoserver
           servicePort: 8080
+  - host: grafana.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana-grafana
+          servicePort: 80
+

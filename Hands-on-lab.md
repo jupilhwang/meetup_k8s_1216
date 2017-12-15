@@ -1,4 +1,4 @@
-# Oracle Montly Meetup - Hands-on : Kubernetes
+# Oracle Montly Meetup - Hands-on : Kubernetes 이어서...
 - 2017년12월16일
 - @jupil_hwang
 
@@ -45,10 +45,19 @@
 
 ### Kubernetes 101 (in 3min)
 - Node : Master Node / Worker Node
-- Pod :
-- Service :
-- Deployment :
-- Ingress :
+- Pod : one or more containers in a pod, share same IP address and resource (mount, host etc..)
+- Service
+- Deployment : replicaset
+- Ingress
+- Labels
+- Namespace
+
+<!--
+**kube-dns DNS Schema 규칙**
+서비스의 경우, <서비스이름>.<네임스페이이름>.svc.cluster.local
+pod의 경우, <팟-IP-Address>.<네임스페이스이름>.pod.cluster.local
+- pod의 IP Address가 1.2.3.4인 경우 1-2-3-4.default.pod.cluster.local
+-->
 
 
 ### Helm
@@ -105,7 +114,7 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
 
 ### Minikube Ingress 
 - service를 ClusterIP로 만들었을때, 외부에서 서비스에 접근하고 싶을때는 어떻게 하면 될까요?
-  - kubectl port-forward <서비스> 로컬호스트포트:서비스외부포트
+  - kubectl port-forward <pods이름> 로컬호스트포트:서비스외부포트
   - ingress 설정 : Kubernetes에서 Service의 외부접근을 처리한다. (L7처럼 동작)
 - minikube 1.4+ 에서는 addon으로 nginx ingress를 제공한다
   ```
@@ -162,7 +171,7 @@ kubectl create -f ingress-rule.yml
 
 # or
 
-kubectl create -f 
+kubectl create -f https://raw.githubusercontent.com/namoo4u/meetup_k8s_1216/master/ingress-rule.yml
 ```
 - 등록된 ingress를 확인한다.
 ```
@@ -262,6 +271,7 @@ spec:
 ```
 -->
 
+![](img/k8s-dashboard-with-heapster.png)
 
 ### Prometheus를 이용한 Kubernetes Monitoring
 #### Prometheus
@@ -274,41 +284,64 @@ Coreos에서는 K8s환경에서 사용할 수 있는 다양한 Operators를 출�
 
 ##### How does it works?
 ![](img/prometheus-operator-work.png)
+
 source: [Prometheus-operator](https://coreos.com/blog/the-prometheus-operator.html)
 
-<!--
+**주의**
+minikube에서 Authorization에서 rbac을 사용
+```bash
+minikube start --extra-config=apiserver.Authorization.Mode=RBAC
+
+# node 기동 확인 후, node status가 READY가 되는 것을 확인한다
+kubectl get nodes
+
+# minikube-rbac 설치
+kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/master/scripts/minikube-rbac.yaml
+```
 ```bash
 # coreos chart repo 추가
 helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 
 # monitoring namespace 생성
-kubectl create ns monitoring
+#kubectl create ns monitoring
 
 # Prometheus-operator 설치
-helm install --name monitoring --set rbacEnable=false --namespace=monitoring coreos/prometheus-operator
+helm install --name monitoring --set rbacEnable=enable --namespace=monitoring coreos/prometheus-operator
+
+# pod과 crd(CustomResourceDefinition)을 확인해 보자
+kubectl get pod,crd -n monitoring
 ```
 ![](img/helm-install-prometheus-operator.png)
 ```bash
 # prometheus, alertmanager and grafana 설치
-helm install --name prometheus --set serviceMonitorsSelector.app=prometheus --set ruleSelector.app=prometheus --set rbacEnable=false --namespace=monitoring coreos/prometheus
+helm install --name prometheus --set serviceMonitorsSelector.app=prometheus --set ruleSelector.app=prometheus --namespace=monitoring coreos/prometheus
+helm install --name alertmanager --namespace=monitoring coreos/alertmanager
+helm install --name grafana --namespace=monitoring coreos/grafana
 
-helm install --name alertmanager --namespace=monitoring --set rbacEnable=false coreos/alertmanager
-
-helm install --name grafana --namespace=monitoring --set rbacEnable=false coreos/grafana
-```
-```bash
-helm install --name kube-prometheus --namespace=monitoring --set rbacEnable=false coreos/kube-prometheus
+# kubernetes를 위한 rule들
+helm install --name kube-prometheus --namespace=monitoring coreos/kube-prometheus
 ```
 ![](img/kubectl-get-all-monitoring.png)
 ```bash
-# minikube vm의 memory가 부족해서 prometheus가 pending으로 나옴, VM의 memory를 증가하고 다시 시작.
+# minikube vm의 memory가 부족해서 prometheus가 pending으로 나올수가 있는데 이런 경우, VM의 memory를 증가하고 다시 시작.
 kubectl get all -n monitoring
 ```
 ![](img/kubectl-get-all-monitoring2.png)
 ```bash
 kubectl port-forward -n monitoring prometheus-prometheus-0 9090
 ```
--->
+![](img/prometheus-targets.png)
+
+#### grafana
+```bash
+
+
+
+# port-forward
+kubectl port-forward -n monitoring $(kubectl get pods --selector=app=grafana-grafana -n monitoring --output=jsonpath="{.items..metadata.name}")  3000
+```
+
+
 <!-- ```bash
 kubectl create -n kube-system tiller
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
@@ -348,6 +381,7 @@ helm install --name kube-prometheus --namespace=monitoring -f /tmp/values.yml co
 ```
 ![](img/helm-install-kube-prometheus.png)
 ``` -->
+
 
 # Kubernetes Setup for Prometheus and Grafana
 ### Quick start
