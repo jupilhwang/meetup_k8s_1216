@@ -65,6 +65,9 @@ pod의 경우, <팟-IP-Address>.<네임스페이스이름>.pod.cluster.local
  -->
 
 # Kubernetes Tutorial
+
+** 아래의 실습 환경은 minikube start --memory 4096 or 8192 --extra-config=apiserver.Authorization.Mode=RBAC 로 실행하면, 좀 더 친절한 환경에서 할 수 있다. **
+
 ### Let's setup the echoserver
 ```bash
 # Docker hub에 등록되어 있는 googlecontainer/echoserver를 실행
@@ -96,11 +99,11 @@ minikube service list
 - advanced : kubectl expose가 어떻게 동작하는지 알고 싶다면 .
 ```bash
 # kubectl expose 전
-iptable -L
+minikube ssh "iptables --list"
 
 kubectl expose ......
 
-iptable -L
+minikube ssh "iptables --list"
 ```
 
 # Ingress
