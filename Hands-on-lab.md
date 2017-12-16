@@ -91,6 +91,9 @@ kubectl scale deployments echoserver --replica=3
 
 # scale 된 pod 확인
 kubectl get pod,svc
+
+# Viewing, Finding Resources
+kubectl describe pod <podname>
 ```
 - minikube에서는 아래와 같은 방법으로도 service를 확인할 수 있다.
 ```bash
