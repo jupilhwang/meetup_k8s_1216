@@ -320,8 +320,7 @@ https://www.outcoldman.com/en/archive/2017/07/09/kubernetes-monitoring-resources
 
 ### Heapster 를 이용한 Kubernetes Monitoring
 - Container Cluster Monitoring and Performance Analysis
-![](https://d33wubrfki0l68.cloudfront.net/a5c0d5e887a336fb0c686b3a6c436b21d51588a4/8e530/images/docs/monitoring-architecture.png)
-
+<!--![](https://d33wubrfki0l68.cloudfront.net/a5c0d5e887a336fb0c686b3a6c436b21d51588a4/8e530/images/docs/monitoring-architecture.png)-->
 ![](https://datadog-prod.imgix.net/img/blog/how-to-collect-and-graph-kubernetes-metrics/kubernetes-heapster.png?auto=format&fit=max&w=847)
 
 - influxdb & grafana
@@ -332,7 +331,7 @@ https://www.outcoldman.com/en/archive/2017/07/09/kubernetes-monitoring-resources
 
   minikube service list
   ```
-  <!-- ![](img/minikube-addons-heapster.png) -->
+  ![](img/minikube-addons-heapster.png)
   ![](img/k8s-dashboard-with-heapster.png)
   <heapster가 적용된 Kubernetes dashboard>
 
