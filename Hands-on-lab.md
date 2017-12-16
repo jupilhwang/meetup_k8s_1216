@@ -5,7 +5,7 @@
 - kubectl
 
 **설치가이드**
-- Install Docker & Kubernetes -  https://goo.gl/4PHTJt by Gyunggyu.kim@oracle.com
+- Install Docker & Kubernetes -  https://goo.gl/4PHTJt by younggyu.kim@oracle.com / credemol@gmail.com
 
 <!--
 #### Minikube Installation
