@@ -71,9 +71,9 @@ pod의 경우, <팟-IP-Address>.<네임스페이스이름>.pod.cluster.local
 kubectl run echoserver --image=googlecontainer/echoserver:1.7 --port=8080
 
 # 서비스를 생성
-#kubectl expose deployment echoserver --type=NodePort
+kubectl expose deployment echoserver --type=NodePort
 or
-kubectl expose deployment echoserver
+#kubectl expose deployment echoserver
 
 # Pod list 확인
 kubectl get pod,svc
@@ -89,75 +89,87 @@ kubectl scale deployments echoserver --replica=3
 # scale 된 pod 확인
 kubectl get pod,svc
 ```
+- minikube에서는 아래와 같은 방법으로도 service를 확인할 수 있다.
+```bash
+minikube service list
+```
+- advanced : kubectl expose가 어떻게 동작하는지 알고 싶다면 .
+```bash
+# kubectl expose 전
+iptable -L
+
+kubectl expose ......
+
+iptable -L
+```
 
 # Ingress
 ### Minikube Ingress 
 - service를 ClusterIP로 만들었을때, 외부에서 서비스에 접근하고 싶을때는 어떻게 하면 될까요?
   - kubectl port-forward <pods이름> 로컬호스트포트:서비스외부포트
   - ingress 설정 : Kubernetes에서 Service의 외부접근을 처리한다. (L7처럼 동작)
-- minikube 1.4+ 에서는 addon으로 nginx ingress를 제공한다
+- minikube 1.4+은 addon으로 ingress를 제공한다
   ```
   minikube addons enable ingress
   ```
+  아래와 같은 것들을 만들어 준다
   - a configMap for Nginx loadbalancer
   - the Nignx Ingress Controller
   - a Service that exposes a default Nginx backend pod for handling unmapped requests
+  ```bash
+  kubectl get all -n kube-system
+  ```
 - The layout of our cluster for this demo is:
-  - A backend that will receive requests for myminikube.info and displays some basic information about the cluster and the request.
+  - A backend that will receive requests for myminikube.local and displays some basic information about the cluster and the request.
   - A pair of backends that will receive the request for cheeses.all .One whose path begins with /stilton and another whose path begins with /cheddar
 
-minikube에서는 아래와 같은 방법으로도 service를 확인할 수 있다.
-```
-minikube service list
-```
-### ingress enable
-```
-minikube addon enable ingress
-```
-![](img/ingress-enable-nginx-ingress-controller.png)
 
 ### ingress rule 설정
-[ingress-rule.yml]
-```yaml
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: ingress-tutorial
-  annotations:
-    ingress.kubernetes.io/rewrite-target: /
-spec:
-  backend:
-    serviceName: default-http-backend
-    servicePort: 80
-  rules:
-  - host: myminikube.local
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: echoserver
-          servicePort: 8080
-```
+- [ingress-rule.yml]
+  ```yaml
+  apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: ingress-tutorial
+    annotations:
+      ingress.kubernetes.io/rewrite-target: /
+  spec:
+    backend:
+      serviceName: default-http-backend
+      servicePort: 80
+    rules:
+    - host: myminikube.local
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: echoserver
+            servicePort: 8080
+  ```
 - ingress rules를 등록한다.
-```bash
-kubectl create -f ingress-rule.yml
-
-# or
-
-kubectl create -f https://raw.githubusercontent.com/namoo4u/meetup_k8s_1216/master/ingress-rule.yml
-```
+  ```bash
+  kubectl create -f ingress-rule.yml
+  # or
+  kubectl create -f https://raw.githubusercontent.com/namoo4u/meetup_k8s_1216/master/ingress-rule.yml
+  ```
 - 등록된 ingress를 확인한다.
-```
-kubectl describe ing ingress-tutorial
-```
+  ```
+  kubectl describe ing ingress-tutorial
+  ```
 - host 파일에 myminikube.local 를 등록한다
-```
-echo "$(minikube ip) myminikube.local" >> /etc/hosts
-```
+  ```bash
+  # for linux or mac os desktop
+  echo "$(minikube ip) myminikube.local" >> /etc/hosts
+
+  # for windows desktop
+  # %systemroot%\system32\drivers\etc\hosts
+  ```
 - service에 접속해 본다.
-```
-watch curl -sSL myminikube.local
-```
+  ```bash
+  watch curl -sSL myminikube.local
+  # or
+  # open browser and refresh
+  ```
 <!--
 ### Kube-lego
 Kube-Lego는 Kubernetes Ingress에서 Let's Encrypt인증서를 생성하고 자동으로 갱신해 주는 툴이다. Helm으로 설치가 가능하다
