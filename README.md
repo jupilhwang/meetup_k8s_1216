@@ -1,6 +1,10 @@
 # Oracle Developer Meetup
 - 2017.12.16
 - @jupil.hwang
+  - BEA systems, Oracle
+  - OpenSource, Linux/Container Technology, Microservice
+  - Cloud Native Application
+    - DevRel
 
 
 ## https://github.com/namoo4u/meetup_k8s_1216
