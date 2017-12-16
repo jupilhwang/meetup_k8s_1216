@@ -1,4 +1,4 @@
-# Oracle Monthly Meetup
+# Oracle Developer Meetup
 - 2017.12.16
 - @jupil.hwang
 
