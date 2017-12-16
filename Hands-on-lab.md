@@ -489,7 +489,7 @@ helm install --name kube-prometheus --namespace=monitoring -f /tmp/values.yml co
 ![](img/helm-install-kube-prometheus.png)
 ``` -->
 
-### Infos
+# Infos
   - Kubernetes: https://kubernetes.io
   - "Prometheus" by Michael Kraus, ADMIN , issue 40, 2017, pg. 20, http://www.admin-magazine.com/Archive/2017/40/Time-series-based-monitoring-with-Prometheus
   - Example from the Kubernetes documentation: https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml
