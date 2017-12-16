@@ -1,5 +1,5 @@
 # Hands-on : Kubernetes 이어서...
-### Prerequisites
+# Prerequisites
 - Virtualbox
 - minikube
 - kubectl
@@ -40,7 +40,7 @@
   curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 -->
 
-### Kubernetes 101 (in 3min)
+# Kubernetes 101 (in 3min)
 - Node : Master Node / Worker Node
 - Cluster
 - Namespace
@@ -64,18 +64,19 @@ pod의 경우, <팟-IP-Address>.<네임스페이스이름>.pod.cluster.local
 - 요청된 호스트에 따라 내부 DNS를 이용하여, Proxy Passing하는 Nginx Service
  -->
 
-### Kubernetes Tutorial
-##### Let's setup the echoserver
+# Kubernetes Tutorial
+### Let's setup the echoserver
 ```bash
 # Docker hub에 등록되어 있는 googlecontainer/echoserver를 실행
 kubectl run echoserver --image=googlecontainer/echoserver:1.7 --port=8080
 
 # 서비스를 생성
 #kubectl expose deployment echoserver --type=NodePort
+or
 kubectl expose deployment echoserver
 
 # Pod list 확인
-kubectl get pod
+kubectl get pod,svc
 
 # 네임스페이스를 명시해서 해당하는 네임스페이스의 리소스들만 볼 수 있다.
 #kubectl get pod -n kube-system
@@ -86,11 +87,11 @@ kubectl get pod
 kubectl scale deployments echoserver --replica=3
 
 # scale 된 pod 확인
-kubectl get pod
+kubectl get pod,svc
 ```
 
-
-##### Minikube Ingress 
+# Ingress
+### Minikube Ingress 
 - service를 ClusterIP로 만들었을때, 외부에서 서비스에 접근하고 싶을때는 어떻게 하면 될까요?
   - kubectl port-forward <pods이름> 로컬호스트포트:서비스외부포트
   - ingress 설정 : Kubernetes에서 Service의 외부접근을 처리한다. (L7처럼 동작)
