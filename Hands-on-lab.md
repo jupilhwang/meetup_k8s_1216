@@ -110,13 +110,13 @@ minikube에서는 아래와 같은 방법으로도 service를 확인할 수 있�
 ```
 minikube service list
 ```
-##### ingress enable
+### ingress enable
 ```
 minikube addon enable ingress
 ```
 ![](img/ingress-enable-nginx-ingress-controller.png)
 
-##### ingress rule 설정
+### ingress rule 설정
 [ingress-rule.yml]
 ```yaml
 apiVersion: extensions/v1beta1
@@ -244,7 +244,7 @@ spec:
 ```
 -->
 
-### Helm
+# Helm
 Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되어 있다. Client tool인 Helm과 Server tool인 Tiller로 구성된다. Tiller는 kubernetes Cluster안에서 서비스로 동작하며, charts의 관리(설치/제거/관리)를 담당한다. Helm은 Client인 laptop이나 CI/CD에서 동작하는 CLI이다.
 
 - chart : Kubernetes에 탑재되는 Helm Package이다.
@@ -283,7 +283,7 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
     helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
     ```
 
-## Monitoring
+# Monitoring
 ![](https://datadog-prod.imgix.net/img/blog/how-to-collect-and-graph-kubernetes-metrics/kubernetes-metric-collection.png?auto=format&fit=max&w=847)
 source : https://www.datadoghq.com/blog/how-to-collect-and-graph-kubernetes-metrics/
 
