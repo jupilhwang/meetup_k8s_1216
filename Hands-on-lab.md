@@ -67,18 +67,26 @@ pod의 경우, <팟-IP-Address>.<네임스페이스이름>.pod.cluster.local
 ### Kubernetes Tutorial
 ##### Let's setup the echoserver
 ```bash
+# Docker hub에 등록되어 있는 googlecontainer/echoserver를 실행
 kubectl run echoserver --image=googlecontainer/echoserver:1.7 --port=8080
+
+# 서비스를 생성
 #kubectl expose deployment echoserver --type=NodePort
 kubectl expose deployment echoserver
 
+# Pod list 확인
 kubectl get pod
 
-kubectl get pod -n kube-system
+# 네임스페이스를 명시해서 해당하는 네임스페이스의 리소스들만 볼 수 있다.
+#kubectl get pod -n kube-system
 # or
-kubectl get pod --namespace=kube-system
+#kubectl get pod --namespace=kube-system
 
-# scale up & down
+# scale up 
 kubectl scale deployments echoserver --replica=3
+
+# scale 된 pod 확인
+kubectl get pod
 ```
 
 
