@@ -332,7 +332,7 @@ https://www.outcoldman.com/en/archive/2017/07/09/kubernetes-monitoring-resources
 
   minikube service list
   ```
-  ![](img/minikube-addons-heapster.png)
+  <!-- ![](img/minikube-addons-heapster.png) -->
   ![](img/k8s-dashboard-with-heapster.png)
   <heapster가 적용된 Kubernetes dashboard>
 
