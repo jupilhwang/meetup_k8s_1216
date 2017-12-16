@@ -1,7 +1,4 @@
-# Oracle Montly Meetup - Hands-on : Kubernetes 이어서...
-- 2017년12월16일
-- @jupil_hwang
-
+# Hands-on : Kubernetes 이어서...
 ### Prerequisites
 - Virtualbox
 - minikube
@@ -49,9 +46,10 @@
 - Namespace
 - Pod : one or more containers in a pod, share same IP address and resource (mount, host etc..)
 - Service
-- Deployment : replicaset
-- Ingress
 - Labels
+- Deployment : replicaset, replication controller
+- Ingress
+- configMap
 
 <!--
 **kube-dns DNS Schema 규칙**
@@ -237,12 +235,6 @@ spec:
 ```
 -->
 
-![](img/k8s-dashboard-with-heapster.png)
-
-## Monitoring
-![](https://datadog-prod.imgix.net/img/blog/how-to-collect-and-graph-kubernetes-metrics/kubernetes-metric-collection.png?auto=format&fit=max&w=847)
-source : https://www.datadoghq.com/blog/how-to-collect-and-graph-kubernetes-metrics/
-
 ### Helm
 Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되어 있다. Client tool인 Helm과 Server tool인 Tiller로 구성된다. Tiller는 kubernetes Cluster안에서 서비스로 동작하며, charts의 관리(설치/제거/관리)를 담당한다. Helm은 Client인 laptop이나 CI/CD에서 동작하는 CLI이다.
 
@@ -270,22 +262,23 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
     ```
     helm init --upgrade
     ```
-- Example 설치
+- Example
   - nginx 패키지 검색 및 설치
     ```bash
-    helm search ghost
-    
-    helm install stable/ghost 
-    #or
-    helm install --name ghost --set ghostUsername=admin,ghostPassword=welcome1,mariadbRootPassword=welcoem1 stable/ghost
+    helm search mysql
+    helm install stable/mysql
     ```
-    ![](img/helm-install-ghost.png)
   - 외부 저장소 추가
     ```
     helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
-
     helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
     ```
+
+## Monitoring
+![](https://datadog-prod.imgix.net/img/blog/how-to-collect-and-graph-kubernetes-metrics/kubernetes-metric-collection.png?auto=format&fit=max&w=847)
+source : https://www.datadoghq.com/blog/how-to-collect-and-graph-kubernetes-metrics/
+
+
 ### cAdvisor / kubelet
 - kubelet소스 코드안에 cAdvisor api가 들어가 있다. [github source](https://github.com/kubernetes/kubernetes/tree/release-1.7/pkg/kubelet/server/stats)
 
@@ -313,6 +306,9 @@ https://www.outcoldman.com/en/archive/2017/07/09/kubernetes-monitoring-resources
   minikube service list
   ```
   ![](img/minikube-addons-heapster.png)
+  ![](img/k8s-dashboard-with-heapster.png)
+  <heapster가 적용된 Kubernetes dashboard>
+
 - heapster model metrics
   ```bash
   kubectl port-forward -n kube-system $(kubectl get pods --selector=k8s-app=heapster -n kube-system --output=jsonpath="{.items..metadata.name}") 8082
@@ -402,11 +398,19 @@ helm install --name kube-prometheus --namespace=monitoring coreos/kube-prometheu
 kubectl get all -n monitoring
 ```
 ![](img/kubectl-get-all-monitoring2.png)
-**exporter-node** 의 경우 /proc Filesystem에 접근을 해야 하기 때문에 
+**exporter-node** 의 경우 /proc Filesystem에 접근을 해야 하기 때문에 securityContext에 privileged:true를 추가한다.
 ![](img/exporter-node-securityContext-privillege.png) 
+  ```yml
+  securityContext:
+    privileged: true
+  ```
+  ![](img/minikube-PodSecurityContext-privileged-error.png)
+- minikube 실행 시 apiserver의 AllowPrivileged=true를 추가한다.
+```bah
+minikube start --extra-config=apiserver.Authorization.Mode=RBAC,apiserver.AllowPrivileged=true
+```
 
-
-
+- Prometheus 띄우기
 ```bash
 kubectl port-forward -n monitoring prometheus-prometheus-0 9090
 ```
