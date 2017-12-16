@@ -383,7 +383,7 @@ Coreos에서는 K8s환경에서 사용할 수 있는 다양한 Operators를 출�
 source: [Prometheus-operator](https://coreos.com/blog/the-prometheus-operator.html)
 
 **주의**
-minikube에서 Authorization에서 rbac을 사용
+minikube에서 helm으로 설치할 때는 Authorization에서 rbac을 사용
 ```bash
 minikube start --extra-config=apiserver.Authorization.Mode=RBAC
 
@@ -417,7 +417,7 @@ helm install --name grafana --namespace=monitoring coreos/grafana
 helm install --name kube-prometheus --namespace=monitoring coreos/kube-prometheus
 ```
 ![](img/kubectl-get-all-monitoring.png)
-```bash
+<!-- ```bash
 # minikube vm의 memory가 부족해서 prometheus가 pending으로 나올수가 있는데 이런 경우, VM의 memory를 증가하고 다시 시작.
 kubectl get all -n monitoring
 ```
@@ -432,15 +432,15 @@ kubectl get all -n monitoring
 - minikube 실행 시 apiserver의 AllowPrivileged=true를 추가한다.
 ```bah
 minikube start --extra-config=apiserver.Authorization.Mode=RBAC,apiserver.AllowPrivileged=true
-```
+``` -->
 
-- Prometheus 띄우기
+- Prometheus 
 ```bash
 kubectl port-forward -n monitoring prometheus-prometheus-0 9090
 ```
 ![](img/prometheus-targets.png)
 
-#### grafana
+- grafana
 ```bash
 
 # port-forward
@@ -488,28 +488,28 @@ helm install --name kube-prometheus --namespace=monitoring -f /tmp/values.yml co
 ``` -->
 
 ### Infos
-  Kubernetes: https://kubernetes.io
-  "Prometheus" by Michael Kraus, ADMIN , issue 40, 2017, pg. 20, http://www.admin-magazine.com/Archive/2017/40/Time-series-based-monitoring-with-Prometheus
-  Example from the Kubernetes documentation: https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml
-  More about relabeling: https://www.robustperception.io/life-of-a-label/
-  PromQL: https://prometheus.io/docs/querying/basics/
-  Prometheus 2.0: https://coreos.com/blog/prometheus-2.0-storage-layer-optimization
-  Persistent volumes: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
-  Stateful sets: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
-  Minikube: https://github.com/kubernetes/minikube
-  Installing Minikube: https://github.com/kubernetes/minikube#installation
-  Listings for the article: ftp://ftp.linux-magazine.com/pub/listings/admin-magazine.com/41/
-  RBAC: https://github.com/prometheus/prometheus/blob/master/documentation/examples/rbac-setup.yml
-  Prometheus Docker image: https://hub.docker.com/r/prom/prometheus/
-  ConfigMap: https://kubernetes.io/docs/tasks/configure-pod-container/configmap/
-  Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
-  Node exporter image: https://hub.docker.com/r/prom/node-exporter/
-  DaemonSet: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
-  Grafana: https://grafana.com
-  Node exporter dashboard: https://grafana.com/dashboards/22
-  Kubernetes pod dashboard: https://grafana.com/dashboards/737
-  Kubernetes dashboards: https://grafana.com/dashboards?dataSource=prometheus&search=Kubernetes
-  kube-state-metrics: https://github.com/kubernetes/kube-state-metrics
-  kube-state-metrics documentation: https://github.com/kubernetes/kube-state-metrics/tree/master/Documentation
-  Prometheus Operator: https://github.com/coreos/prometheus-operator
-  Prometheus Operator documentation: https://coreos.com/operators/prometheus/docs/latest/
+  - Kubernetes: https://kubernetes.io
+  - "Prometheus" by Michael Kraus, ADMIN , issue 40, 2017, pg. 20, http://www.admin-magazine.com/Archive/2017/40/Time-series-based-monitoring-with-Prometheus
+  - Example from the Kubernetes documentation: https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml
+  - More about relabeling: https://www.robustperception.io/life-of-a-label/
+  - PromQL: https://prometheus.io/docs/querying/basics/
+  - Prometheus 2.0: https://coreos.com/blog/prometheus-2.0-storage-layer-optimization
+  - Persistent volumes: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+  - Stateful sets: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+  - Minikube: https://github.com/kubernetes/minikube
+  - Installing Minikube: https://github.com/kubernetes/minikube#installation
+  - Listings for the article: ftp://ftp.linux-magazine.com/pub/listings/admin-magazine.com/41/
+  - RBAC: https://github.com/prometheus/prometheus/blob/master/documentation/examples/rbac-setup.yml
+  - Prometheus Docker image: https://hub.docker.com/r/prom/prometheus/
+  - ConfigMap: https://kubernetes.io/docs/tasks/configure-pod-container/configmap/
+  - Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+  - Node exporter image: https://hub.docker.com/r/prom/node-exporter/
+  - DaemonSet: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+  - Grafana: https://grafana.com
+  - Node exporter dashboard: https://grafana.com/dashboards/22
+  - Kubernetes pod dashboard: https://grafana.com/dashboards/737
+  - Kubernetes dashboards: https://grafana.com/dashboards?dataSource=prometheus&search=Kubernetes
+  - kube-state-metrics: https://github.com/kubernetes/kube-state-metrics
+  - kube-state-metrics documentation: https://github.com/kubernetes/kube-state-metrics/tree/master/Documentation
+  - Prometheus Operator: https://github.com/coreos/prometheus-operator
+  - Prometheus Operator documentation: https://coreos.com/operators/prometheus/docs/latest/
