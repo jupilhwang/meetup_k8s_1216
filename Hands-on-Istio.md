@@ -45,7 +45,7 @@ helm install -n istio incubator/istio --version 0.2.12-chart3
 # CustomResourceDefinition이 없는 경우, CRD를 먼저 생성한다. 그 다음 다시 아래 명령어를 실행한다.
 helm upgrade istio incubator/istio --reuse-values --set istio.install=true
 ```
-
+![](img/istio-helm-install-upgrade.png)
 ### Install istio with kubectl
 <!-- 
 ### Grant Permissions
