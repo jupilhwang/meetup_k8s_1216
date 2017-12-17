@@ -76,3 +76,14 @@ kubectl create -f install/kubernetes/istio.yaml
   ![](img/istio-pods.png)
 
 ### Using Istio Route Rules
+
+  - istio-initializer가 설치되어 있는 경우, 일반적인 방법으로 app을 설치하면 자동으로 istio sidecar가 설치된다
+    - istio-initializer 설치
+      ```bash
+      kubectl create -f install/kubernetes/istio-initializer.yaml
+      ```
+  
+  - 하지만 그렇지 않은 경우, 아래와 같이 app을 설치한다
+    ```bash
+    kubectl create -f <(istioctl kube-inject -f <your-app-spec>.yml)
+    ```
