@@ -314,7 +314,7 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
 source : https://www.datadoghq.com/blog/how-to-collect-and-graph-kubernetes-metrics/
 
 
-### cAdvisor / kubelet
+### kubelet (cAdvisor)
 - kubelet소스 코드안에 cAdvisor api가 들어가 있다. [github source](https://github.com/kubernetes/kubernetes/tree/release-1.7/pkg/kubelet/server/stats)
 
 ```bash
