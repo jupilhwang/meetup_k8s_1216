@@ -6,7 +6,6 @@
   - Cloud Native Application
     - DevRel
 
-
 ## https://github.com/namoo4u/meetup_k8s_1216
 
 

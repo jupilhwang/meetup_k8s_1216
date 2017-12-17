@@ -273,6 +273,14 @@ Helm은 Kubernetes Package Manager이다. 크게 두개 파트로 구성이 되�
   - [Kubeapps](https://kubeapps.com/)
 
 - 설치
+  - Binary Download
+    - [Windows](https://kubernetes-helm.storage.googleapis.com/helm-v2.7.2-windows-amd64.tar.gz)
+    - [Linux](https://kubernetes-helm.storage.googleapis.com/helm-v2.7.2-linux-amd64.tar.gz)
+    - [macOS](https://kubernetes-helm.storage.googleapis.com/helm-v2.7.2-darwin-amd64.tar.gz)
+      ```bash
+      brew install kubernetes-helm
+      ```
+    **[Installation Guide](https://docs.helm.sh/using_helm/#installing-helm)**를 참고
   - K8s context 확인
     현재 Kubeconfig의 current-context가 helm을 설치할려고 하는 K8s cluster를 가르키고 있는지 확인한다.
     ```
