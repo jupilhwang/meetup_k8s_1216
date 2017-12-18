@@ -1,6 +1,8 @@
 # Istio
 how to run the Istio Ingress Controller in a Kubernetes Cluster.
 
+참고 : https://github.com/kubernetes/charts/tree/master/incubator/istio
+
 ## Architecture
 ![](img/istio-ingress.png)
   - Istio Pilot managed by a Deployment
@@ -37,7 +39,7 @@ Kubernetes 1.7.3 or newer cluster with RBAC(Role-Based Access Control) - enabled
 helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 
 # install the istio 
-helm install -n istio incubator/istio --version 0.2.12-chart3
+helm install --name istio --namespace istio-system incubator/istio --version 0.2.12-chart3
 ```
 ![](img/helm-repo-list.png)
 ![](img/istio-helm-install.png)
